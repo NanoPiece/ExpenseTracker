@@ -7,41 +7,40 @@
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
+    android:weightSum="1"
+    android:backgroundTint="@color/design_default_color_background"
     >
 
     <!-- icon -->
     <ImageView
         android:id="@+id/expense_icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:srcCompat="@android:drawable/btn_star_big_on"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".1"
         android:contentDescription="icon"
-        android:layout_weight=".1"/>
+        android:foregroundGravity="top"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
 
     <!-- description and category -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="5dp"
         android:layout_weight=".7">
 
         <TextView
             android:id="@+id/description"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Description"
-            android:textAlignment="center"
-            />
+            android:textAlignment="viewStart" />
 
         <TextView
             android:id="@+id/category"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Category"
-            android:textAlignment="center"
+            android:textAlignment="viewStart"
             />
 
     </LinearLayout>
@@ -50,10 +49,8 @@
     <TextView
         android:id="@+id/amount"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight=".2"
         android:text="amount"
-        android:textAlignment="center"
-        android:layout_gravity="center"
-        />
+        android:gravity="right" />
 </LinearLayout>

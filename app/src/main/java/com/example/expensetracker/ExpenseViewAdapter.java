@@ -38,7 +38,19 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         TextView textView1 = holder.category;
         textView1.setText(expense.getCategory());
         TextView textView2 = holder.amount;
-        textView2.setText("£"+expense.getAmount().toString());
+        String formattedAmount;
+        if (expense.getAmount() >= 1000000) {
+            Double simplifiedAmount = expense.getAmount()/1000000;
+            formattedAmount = String.format("%.2f", simplifiedAmount);
+            formattedAmount += "m";
+        } else if (expense.getAmount() >= 1000) {
+            Double simplifiedAmount = expense.getAmount()/1000;
+            formattedAmount = String.format("%.2f", simplifiedAmount);
+            formattedAmount += "k";
+        } else {
+            formattedAmount = String.format("%.2f", expense.getAmount());
+        }
+        textView2.setText("£"+formattedAmount);
     }
 
     @Override
