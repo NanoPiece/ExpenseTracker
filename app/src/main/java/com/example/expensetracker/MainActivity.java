@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ExpenseViewAdapter.OnExpenseListener {
     private List<Expense> expenses;
     RecyclerView rvExpenses;
     ExpenseViewAdapter adapter;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
             expenses.add(new Expense("Travel", "TFL daily commute",
                     10.50));
         }
-        adapter = new ExpenseViewAdapter(expenses);
+        adapter = new ExpenseViewAdapter(expenses, this);
         rvExpenses.setAdapter(adapter);
         rvExpenses.setLayoutManager(new LinearLayoutManager(this));
 
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 String result = data.getStringExtra("New_Expense");
                 String[] resultValues = result.split(",");
-                Log.i("Testing", resultValues[2]);
+                // Log.i("Testing", resultValues[2]);
                 Expense expense = new Expense(resultValues[0], resultValues[1],
                         Double.parseDouble(resultValues[2]));
                 expenses.add(0, expense);
@@ -70,6 +71,34 @@ public class MainActivity extends AppCompatActivity {
                 rvExpenses.scrollToPosition(0);
             }
         }
+        if (requestCode == 2) {
+            if(resultCode == RESULT_OK) {
+                String result = data.getStringExtra("Updated_Expense");
+                String[] resultValues = result.split(",");
+                Integer position = Integer.parseInt(resultValues[0]);
+                Expense item = expenses.get(position);
+                item.setCategory(resultValues[1]);
+                item.setDescription(resultValues[2]);
+                item.setAmount(Double.parseDouble(resultValues[3]));
+                adapter.notifyItemChanged(position);
+
+                //ensure the recyclerview stays at the top
+                rvExpenses.scrollToPosition(0);
+            }
+        }
     }
 
+    // Action to be taken when clicking on individual expense item
+    @Override
+    public void onExpenseCLick(int position) {
+        Expense expense = expenses.get(position);
+        Intent intent = new Intent(this, EditExpense.class);
+        String[] expenseDetail = new String[4];
+        expenseDetail[0] = Integer.toString(position);
+        expenseDetail[1] = expense.getCategory();
+        expenseDetail[2] = expense.getDescription();
+        expenseDetail[3] = Double.toString(expense.getAmount());
+        intent.putExtra("expense", expenseDetail);
+        startActivityForResult(intent, 2);
+    }
 }

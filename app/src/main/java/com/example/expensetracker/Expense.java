@@ -14,11 +14,15 @@ public class Expense {
         this.date = new GregorianCalendar(2020, Calendar.FEBRUARY, 11).getTime();
         this.category = category;
         this.description = description;
-        this.amount = amount;
+        this.amount = Math.round(amount * 100.0)/100.0;
     }
 
     public Date getDate() { return this.date; }
     public String getDescription() { return this.description; }
     public String getCategory() { return this.category; }
-    public  Double getAmount() { return this.amount; }
+    public Double getAmount() { return this.amount; }
+
+    public void setDescription(String description) {this.description = description;}
+    public void setCategory(String category) {this.category = category;}
+    public void setAmount(Double amount) {this.amount = amount;}
 }

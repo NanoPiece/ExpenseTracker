@@ -14,6 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.ViewHolder> {
+    private List<Expense> mExpenses;
+    private OnExpenseListener mOnExpenseListener;
+
+
+    public ExpenseViewAdapter(List<Expense> expenses, OnExpenseListener mOnExpenseListener) {
+        this.mExpenses = expenses;
+        this.mOnExpenseListener = mOnExpenseListener;
+    }
 
     @NonNull
     @Override
@@ -23,7 +31,7 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
 
         View expenseView = inflater.inflate(R.layout.expense_item, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(expenseView);
+        ViewHolder viewHolder = new ViewHolder(expenseView, mOnExpenseListener);
         return viewHolder;
     }
 
@@ -58,27 +66,35 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         return mExpenses.size();
     }
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView icon;
         public TextView description;
         public TextView category;
         public TextView amount;
+        OnExpenseListener onExpenseListener;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, OnExpenseListener onExpenseListener) {
             super(itemView);
 
             icon = (ImageView) itemView.findViewById(R.id.expense_icon);
             description = (TextView) itemView.findViewById(R.id.description);
             category = (TextView) itemView.findViewById(R.id.category);
             amount = (TextView) itemView.findViewById(R.id.amount);
+            this.onExpenseListener = onExpenseListener;
 
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            onExpenseListener.onExpenseCLick(getAdapterPosition());
         }
     }
 
-    private List<Expense> mExpenses;
-
-    public ExpenseViewAdapter(List<Expense> expenses) {
-        mExpenses = expenses;
+    // Detect click on individual item of recyclerview
+    public interface OnExpenseListener{
+        void onExpenseCLick(int position);
     }
+
+
 }
