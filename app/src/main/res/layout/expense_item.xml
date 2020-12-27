@@ -36,7 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Description"
-            android:textAlignment="viewStart" />
+            android:textAlignment="viewStart"
+            android:textColor="#000000" />
 
         <TextView
             android:id="@+id/category"
@@ -44,7 +45,7 @@
             android:layout_height="wrap_content"
             android:text="Category"
             android:textAlignment="viewStart"
-            />
+            android:textColor="#000000" />
 
     </LinearLayout>
 
@@ -54,6 +55,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight=".2"
+        android:gravity="right"
         android:text="amount"
-        android:gravity="right" />
+        android:textColor="#000000" />
 </LinearLayout>
