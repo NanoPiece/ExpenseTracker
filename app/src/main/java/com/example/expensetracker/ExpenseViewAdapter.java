@@ -1,6 +1,7 @@
 package com.example.expensetracker;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,14 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.ViewHolder> {
     private List<Expense> mExpenses;
     private OnExpenseListener mOnExpenseListener;
-
 
     public ExpenseViewAdapter(List<Expense> expenses, OnExpenseListener mOnExpenseListener) {
         this.mExpenses = expenses;
@@ -39,6 +41,11 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Get the data model based on position
         Expense expense = mExpenses.get(position);
+        if (expense.isChecked()) {
+            holder.itemView.setBackgroundColor(Color.YELLOW);
+        } else {
+            holder.itemView.setBackgroundColor(Color.WHITE);
+        }
 
         // Set item views based on your views and data model
         TextView textView = holder.description;
@@ -66,7 +73,8 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         return mExpenses.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnLongClickListener {
         public ImageView icon;
         public TextView description;
         public TextView category;
@@ -83,17 +91,25 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
             this.onExpenseListener = onExpenseListener;
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             onExpenseListener.onExpenseCLick(getAdapterPosition());
         }
+
+        @Override
+        public boolean onLongClick(View view) {
+            onExpenseListener.onExpenseLongClick(getAdapterPosition());
+            return true;
+        }
     }
 
     // Detect click on individual item of recyclerview
     public interface OnExpenseListener{
         void onExpenseCLick(int position);
+        void onExpenseLongClick(int position);
     }
 
 
