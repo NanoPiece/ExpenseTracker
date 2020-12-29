@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,27 +52,18 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
 
         // Initialise expenses
         expenses = new ArrayList<>();
-        //Database variables
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "expense-database").build();
-        final ExpenseDao expenseDao = db.getExpenseDao();
-        new Thread (new Runnable() {
-            @Override
-            public void run() {
-                Expense test = new Expense("Test", "Testing", 99.99);
-                expenseDao.insert(test);
-                test = new Expense("Test2", "Testing2", 88.99);
-                expenseDao.insert(test);
-                expenses.addAll(expenseDao.getAll());
-                adapter.notifyDataSetChanged();
-            }
-        }).start();
 
-
+        // Adapter
         adapter = new ExpenseViewAdapter(expenses, this);
         rvExpenses.setAdapter(adapter);
         rvExpenses.setLayoutManager(new LinearLayoutManager(this));
         rvExpenses.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+
+        //Database variables
+        new LoadData(adapter).execute();
+
+        // Add test data
+
 
         // Floating action button - add new expense
         FloatingActionButton fab = findViewById(R.id.add_expense_fab);
@@ -214,5 +206,65 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
             expenses.get(position).setChecked(true);
         }
         adapter.notifyDataSetChanged();
+    }
+
+    class AddNewExpense extends AsyncTask<Expense, Void, List<Expense>> {
+        ExpenseViewAdapter adapter;
+        ArrayList<Expense> values = new ArrayList<>();
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
+                "expense-database").build();
+        final ExpenseDao expenseDao = db.getExpenseDao();
+
+        public AddNewExpense(ExpenseViewAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected List<Expense> doInBackground(Expense... params) {
+            List<Expense> result = new ArrayList<>();
+            // Update database
+            for (Expense i : params) {
+                expenseDao.insert(i);
+                result.add(0,i);
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(List<Expense> result) {
+            for (Expense i : result) {
+                expenses.add(0, i);
+                adapter.notifyItemInserted(0);
+                Log.i("result",expenses.get(0).getDescription());
+            }
+        }
+    }
+
+    class LoadData extends AsyncTask<Void, Void, List<Expense>> {
+        ExpenseViewAdapter adapter;
+        ArrayList<Expense> values = new ArrayList<>();
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
+                "expense-database").build();
+        final ExpenseDao expenseDao = db.getExpenseDao();
+
+        public LoadData(ExpenseViewAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected List<Expense> doInBackground(Void... voids) {
+            expenses.addAll(expenseDao.getAll());
+            if (expenses.size() == 0){
+                Expense test1 = new Expense("Test", "Testing", 99.99);
+                Expense test2 = new Expense("Test2", "Testing2", 88.99);
+                new AddNewExpense(adapter).execute(test1, test2);
+            }
+            return expenses;
+        }
+
+        @Override
+        protected void onPostExecute(List<Expense> result) {
+            adapter.notifyDataSetChanged();
+        }
     }
 }

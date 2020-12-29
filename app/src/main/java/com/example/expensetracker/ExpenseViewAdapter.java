@@ -117,5 +117,4 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         void onExpenseLongClick(int position);
     }
 
-
 }
