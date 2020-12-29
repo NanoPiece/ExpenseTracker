@@ -2,32 +2,30 @@ package com.example.expensetracker;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
-import android.app.ActionBar;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.expensetracker.database.AppDatabase;
+import com.example.expensetracker.database.ExpenseDao;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ExpenseViewAdapter.OnExpenseListener {
@@ -52,12 +50,24 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         rvExpenses = (RecyclerView) findViewById(R.id.rvExpenses);
 
         // Initialise expenses
-        expenses = new ArrayList<Expense>();
-        for (int i=0; i<20; i++){
-            // Test data
-            expenses.add(new Expense("Travel", "TFL daily commute " +
-                    Integer.toString(i+1), 10.50));
-        }
+        expenses = new ArrayList<>();
+        //Database variables
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "expense-database").build();
+        final ExpenseDao expenseDao = db.getExpenseDao();
+        new Thread (new Runnable() {
+            @Override
+            public void run() {
+                Expense test = new Expense("Test", "Testing", 99.99);
+                expenseDao.insert(test);
+                test = new Expense("Test2", "Testing2", 88.99);
+                expenseDao.insert(test);
+                expenses.addAll(expenseDao.getAll());
+                adapter.notifyDataSetChanged();
+            }
+        }).start();
+
+
         adapter = new ExpenseViewAdapter(expenses, this);
         rvExpenses.setAdapter(adapter);
         rvExpenses.setLayoutManager(new LinearLayoutManager(this));
@@ -137,6 +147,9 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         if (!multiSelect) {
             // We have started multi selection, so set the flag to true
             multiSelect = true;
+            // Hide add new button
+            FloatingActionButton fab = findViewById(R.id.add_expense_fab);
+            fab.setVisibility(View.GONE);
             // Add it to the list containing all the selected images
             selectExpense(position);
         }
@@ -184,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
                 expense.setChecked(false);
             }
             adapter.notifyDataSetChanged();
+            FloatingActionButton fab = findViewById(R.id.add_expense_fab);
+            fab.setVisibility(View.VISIBLE);
         }
     };
 
@@ -200,6 +215,4 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         }
         adapter.notifyDataSetChanged();
     }
-
-
 }

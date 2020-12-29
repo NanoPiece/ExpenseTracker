@@ -20,7 +20,7 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
     private List<Expense> mExpenses;
     private OnExpenseListener mOnExpenseListener;
 
-    public ExpenseViewAdapter(List<Expense> expenses, OnExpenseListener mOnExpenseListener) {
+    public ExpenseViewAdapter (List<Expense> expenses, OnExpenseListener mOnExpenseListener) {
         this.mExpenses = expenses;
         this.mOnExpenseListener = mOnExpenseListener;
     }
@@ -70,6 +70,11 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
 
     @Override
     public int getItemCount() {
+        try {
+            mExpenses.size();
+        } catch (Exception e) {
+            return 0;
+        }
         return mExpenses.size();
     }
 
