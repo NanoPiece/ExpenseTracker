@@ -27,8 +27,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ExpenseViewAdapter.OnExpenseListener {
@@ -90,9 +96,16 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
             if(resultCode == RESULT_OK) {
                 String result = data.getStringExtra("New_Expense");
                 String[] resultValues = result.split(",");
-                // Log.i("Testing", resultValues[2]);
+                // Date variables
+                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                Date date = null;
+                try {
+                    date = df.parse(resultValues[3]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 Expense expense = new Expense(resultValues[0], resultValues[1],
-                        Double.parseDouble(resultValues[2]));
+                        Double.parseDouble(resultValues[2]), date);
                 expenses.add(0, expense);
                 adapter.notifyItemInserted(0);
                 // Database action
@@ -109,9 +122,18 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
                 String[] resultValues = result.split(",");
                 Integer position = Integer.parseInt(resultValues[0]);
                 Expense expense = expenses.get(position);
+                // Date variables
+                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                Date date = null;
+                try {
+                    date = df.parse(resultValues[4]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 expense.setCategory(resultValues[1]);
                 expense.setDescription(resultValues[2]);
                 expense.setAmount(Double.parseDouble(resultValues[3]));
+                expense.setDate(date);
                 // Database action
                 new UpdateExpense(adapter).execute(position);
                 //ensure the recyclerview stays at the top
@@ -128,11 +150,14 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         } else {
             Expense expense = expenses.get(position);
             Intent intent = new Intent(this, EditExpense.class);
-            String[] expenseDetail = new String[4];
+            String[] expenseDetail = new String[5];
             expenseDetail[0] = Integer.toString(position);
             expenseDetail[1] = expense.getCategory();
             expenseDetail[2] = expense.getDescription();
             expenseDetail[3] = Double.toString(expense.getAmount());
+            Date date = expense.getDate();
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            expenseDetail[4] = dateFormat.format(date);
             intent.putExtra("expense", expenseDetail);
             startActivityForResult(intent, 2);
         }
@@ -306,8 +331,9 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
             expenses.addAll(expenseDao.getAll());
             if (expenses.size() == 0){
                 // To be removed - for testing only
-                Expense test1 = new Expense("Test", "Testing", 99.99);
-                Expense test2 = new Expense("Test2", "Testing2", 88.99);
+                Date date = new GregorianCalendar(2020, Calendar.FEBRUARY, 11).getTime();
+                Expense test1 = new Expense("Test", "Testing", 99.99, date);
+                Expense test2 = new Expense("Test2", "Testing2", 88.99, date);
                 new AddNewExpense(adapter).execute(test1, test2);
             }
             return expenses;

@@ -28,7 +28,7 @@
         android:textSize="24sp" />
 
     <EditText
-        android:id="@+id/editTextCategory"
+        android:id="@+id/editExpenseCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -39,7 +39,7 @@
         android:textColor="@android:color/primary_text_light" />
 
     <EditText
-        android:id="@+id/editTextDescription"
+        android:id="@+id/editExpenseDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -50,7 +50,7 @@
         android:textColor="@android:color/primary_text_light" />
 
     <EditText
-        android:id="@+id/editTextAmount"
+        android:id="@+id/editExpenseAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -59,6 +59,19 @@
         android:hint="Amount"
         android:text=""
         android:textColor="@android:color/primary_text_light"/>
+
+    <EditText
+        android:id="@+id/editExpenseDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:ems="10"
+        android:hint="Select Date"
+        android:inputType="date"
+        android:text=""
+        android:clickable="true"
+        android:cursorVisible="false"
+        android:focusable="false"/>
   </LinearLayout>
   <LinearLayout
       android:id="@+id/submit_or_cancel_buttons"

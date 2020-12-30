@@ -163,6 +163,14 @@ public final class ExpenseDao_Impl implements ExpenseDao {
       final List<Expense> _result = new ArrayList<Expense>(_cursor.getCount());
       while(_cursor.moveToNext()) {
         final Expense _item;
+        final Date _tmpDate;
+        final Long _tmp;
+        if (_cursor.isNull(_cursorIndexOfDate)) {
+          _tmp = null;
+        } else {
+          _tmp = _cursor.getLong(_cursorIndexOfDate);
+        }
+        _tmpDate = Converters.fromTimestamp(_tmp);
         final String _tmpDescription;
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final Double _tmpAmount;
@@ -173,19 +181,10 @@ public final class ExpenseDao_Impl implements ExpenseDao {
         }
         final String _tmpCategory;
         _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
-        _item = new Expense(_tmpCategory,_tmpDescription,_tmpAmount);
+        _item = new Expense(_tmpCategory,_tmpDescription,_tmpAmount,_tmpDate);
         final int _tmpUid;
         _tmpUid = _cursor.getInt(_cursorIndexOfUid);
         _item.setUid(_tmpUid);
-        final Date _tmpDate;
-        final Long _tmp;
-        if (_cursor.isNull(_cursorIndexOfDate)) {
-          _tmp = null;
-        } else {
-          _tmp = _cursor.getLong(_cursorIndexOfDate);
-        }
-        _tmpDate = Converters.fromTimestamp(_tmp);
-        _item.setDate(_tmpDate);
         _result.add(_item);
       }
       return _result;
@@ -223,6 +222,14 @@ public final class ExpenseDao_Impl implements ExpenseDao {
       final List<Expense> _result = new ArrayList<Expense>(_cursor.getCount());
       while(_cursor.moveToNext()) {
         final Expense _item_1;
+        final Date _tmpDate;
+        final Long _tmp;
+        if (_cursor.isNull(_cursorIndexOfDate)) {
+          _tmp = null;
+        } else {
+          _tmp = _cursor.getLong(_cursorIndexOfDate);
+        }
+        _tmpDate = Converters.fromTimestamp(_tmp);
         final String _tmpDescription;
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final Double _tmpAmount;
@@ -233,19 +240,10 @@ public final class ExpenseDao_Impl implements ExpenseDao {
         }
         final String _tmpCategory;
         _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
-        _item_1 = new Expense(_tmpCategory,_tmpDescription,_tmpAmount);
+        _item_1 = new Expense(_tmpCategory,_tmpDescription,_tmpAmount,_tmpDate);
         final int _tmpUid;
         _tmpUid = _cursor.getInt(_cursorIndexOfUid);
         _item_1.setUid(_tmpUid);
-        final Date _tmpDate;
-        final Long _tmp;
-        if (_cursor.isNull(_cursorIndexOfDate)) {
-          _tmp = null;
-        } else {
-          _tmp = _cursor.getLong(_cursorIndexOfDate);
-        }
-        _tmpDate = Converters.fromTimestamp(_tmp);
-        _item_1.setDate(_tmpDate);
         _result.add(_item_1);
       }
       return _result;
@@ -281,6 +279,14 @@ public final class ExpenseDao_Impl implements ExpenseDao {
       final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
       final Expense _result;
       if(_cursor.moveToFirst()) {
+        final Date _tmpDate;
+        final Long _tmp;
+        if (_cursor.isNull(_cursorIndexOfDate)) {
+          _tmp = null;
+        } else {
+          _tmp = _cursor.getLong(_cursorIndexOfDate);
+        }
+        _tmpDate = Converters.fromTimestamp(_tmp);
         final String _tmpDescription;
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final Double _tmpAmount;
@@ -291,19 +297,10 @@ public final class ExpenseDao_Impl implements ExpenseDao {
         }
         final String _tmpCategory;
         _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
-        _result = new Expense(_tmpCategory,_tmpDescription,_tmpAmount);
+        _result = new Expense(_tmpCategory,_tmpDescription,_tmpAmount,_tmpDate);
         final int _tmpUid;
         _tmpUid = _cursor.getInt(_cursorIndexOfUid);
         _result.setUid(_tmpUid);
-        final Date _tmpDate;
-        final Long _tmp;
-        if (_cursor.isNull(_cursorIndexOfDate)) {
-          _tmp = null;
-        } else {
-          _tmp = _cursor.getLong(_cursorIndexOfDate);
-        }
-        _tmpDate = Converters.fromTimestamp(_tmp);
-        _result.setDate(_tmpDate);
       } else {
         _result = null;
       }
@@ -345,6 +342,14 @@ public final class ExpenseDao_Impl implements ExpenseDao {
       final List<Expense> _result = new ArrayList<Expense>(_cursor.getCount());
       while(_cursor.moveToNext()) {
         final Expense _item;
+        final Date _tmpDate;
+        final Long _tmp_2;
+        if (_cursor.isNull(_cursorIndexOfDate)) {
+          _tmp_2 = null;
+        } else {
+          _tmp_2 = _cursor.getLong(_cursorIndexOfDate);
+        }
+        _tmpDate = Converters.fromTimestamp(_tmp_2);
         final String _tmpDescription;
         _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
         final Double _tmpAmount;
@@ -355,19 +360,10 @@ public final class ExpenseDao_Impl implements ExpenseDao {
         }
         final String _tmpCategory;
         _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
-        _item = new Expense(_tmpCategory,_tmpDescription,_tmpAmount);
+        _item = new Expense(_tmpCategory,_tmpDescription,_tmpAmount,_tmpDate);
         final int _tmpUid;
         _tmpUid = _cursor.getInt(_cursorIndexOfUid);
         _item.setUid(_tmpUid);
-        final Date _tmpDate;
-        final Long _tmp_2;
-        if (_cursor.isNull(_cursorIndexOfDate)) {
-          _tmp_2 = null;
-        } else {
-          _tmp_2 = _cursor.getLong(_cursorIndexOfDate);
-        }
-        _tmpDate = Converters.fromTimestamp(_tmp_2);
-        _item.setDate(_tmpDate);
         _result.add(_item);
       }
       return _result;

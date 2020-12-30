@@ -24,8 +24,8 @@ public class Expense {
     @Ignore
     private boolean isChecked; // Used for multi-selection UI only
 
-    public Expense(String category, String description, Double amount) {
-        this.date = new GregorianCalendar(2020, Calendar.FEBRUARY, 11).getTime();
+    public Expense(String category, String description, Double amount, Date date) {
+        this.date = date;
         this.category = category;
         this.description = description;
         this.amount = Math.round(amount * 100.0)/100.0;
