@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Delete;
 import androidx.room.Room;
 
 import android.app.Activity;
@@ -27,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ExpenseViewAdapter.OnExpenseListener {
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
     // Contextual action mode
     private ActionMode mActionMode;
     Menu context_menu;
+    // Database variables
+    AppDatabase db;
+    ExpenseDao expenseDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +65,10 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         rvExpenses.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         //Database variables
+        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
+                "expense-database").build();
+        expenseDao = db.getExpenseDao();
         new LoadData(adapter).execute();
-
-        // Add test data
-
 
         // Floating action button - add new expense
         FloatingActionButton fab = findViewById(R.id.add_expense_fab);
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
                         Double.parseDouble(resultValues[2]));
                 expenses.add(0, expense);
                 adapter.notifyItemInserted(0);
+                // Database action
+                new AddNewExpense(adapter).execute(expense);
                 //ensure the recyclerview stays at the top
                 rvExpenses.scrollToPosition(0);
             }
@@ -101,11 +108,12 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
                 String result = data.getStringExtra("Updated_Expense");
                 String[] resultValues = result.split(",");
                 Integer position = Integer.parseInt(resultValues[0]);
-                Expense item = expenses.get(position);
-                item.setCategory(resultValues[1]);
-                item.setDescription(resultValues[2]);
-                item.setAmount(Double.parseDouble(resultValues[3]));
-                adapter.notifyItemChanged(position);
+                Expense expense = expenses.get(position);
+                expense.setCategory(resultValues[1]);
+                expense.setDescription(resultValues[2]);
+                expense.setAmount(Double.parseDouble(resultValues[3]));
+                // Database action
+                new UpdateExpense(adapter).execute(position);
                 //ensure the recyclerview stays at the top
                 rvExpenses.scrollToPosition(0);
             }
@@ -147,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         }
     }
 
+    // Action mode - currently only for deleting expenses
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -170,6 +179,10 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
                     for (Expense expense : selectedExpenses) {
                         expenses.remove(expense);
                     }
+                    // Database action
+                    List<Expense> toBeDeleted = new ArrayList<>();
+                    toBeDeleted.addAll(selectedExpenses);
+                    new DeleteExpenses().execute(toBeDeleted);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(MainActivity.this, "Expenses deleted",
                             Toast.LENGTH_SHORT).show();
@@ -208,44 +221,81 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         adapter.notifyDataSetChanged();
     }
 
-    class AddNewExpense extends AsyncTask<Expense, Void, List<Expense>> {
+    /** AysncTask below for database related operations */
+
+    // add new expense
+    class AddNewExpense extends AsyncTask<Expense, Void, String> {
         ExpenseViewAdapter adapter;
-        ArrayList<Expense> values = new ArrayList<>();
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
-                "expense-database").build();
-        final ExpenseDao expenseDao = db.getExpenseDao();
 
         public AddNewExpense(ExpenseViewAdapter adapter) {
             this.adapter = adapter;
         }
 
         @Override
-        protected List<Expense> doInBackground(Expense... params) {
-            List<Expense> result = new ArrayList<>();
+        protected String doInBackground(Expense... params) {
             // Update database
             for (Expense i : params) {
                 expenseDao.insert(i);
-                result.add(0,i);
+            }
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // Do nothing
+        }
+    }
+
+    // update an existing expense
+    class UpdateExpense extends AsyncTask<Integer, Void, List<Integer>> {
+        ExpenseViewAdapter adapter;
+
+        public UpdateExpense(ExpenseViewAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected List<Integer> doInBackground(Integer... params) {
+            List<Integer> result = new ArrayList<>();
+            // Update database
+            for (Integer i : params) {
+                expenseDao.updateExpenses(expenses.get(i));
+                result.add(i);
             }
             return result;
         }
 
         @Override
-        protected void onPostExecute(List<Expense> result) {
-            for (Expense i : result) {
-                expenses.add(0, i);
-                adapter.notifyItemInserted(0);
-                Log.i("result",expenses.get(0).getDescription());
+        protected void onPostExecute(List<Integer> result) {
+            for (int i : result) {
+                adapter.notifyItemChanged(i);
             }
         }
     }
 
+    // Delete selected expenses
+    class DeleteExpenses extends AsyncTask<List<Expense>, Void, String> {
+
+        @Override
+        protected String doInBackground(List<Expense>... params) {
+            // Update database
+            for (List<Expense> i : params) {
+                for (Expense j : i){
+                    expenseDao.deleteExpenses(j);
+                }
+            }
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String string) {
+            // Do nothing
+        }
+    }
+
+    // Action to be performed when app first opened
     class LoadData extends AsyncTask<Void, Void, List<Expense>> {
         ExpenseViewAdapter adapter;
-        ArrayList<Expense> values = new ArrayList<>();
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
-                "expense-database").build();
-        final ExpenseDao expenseDao = db.getExpenseDao();
 
         public LoadData(ExpenseViewAdapter adapter) {
             this.adapter = adapter;
@@ -255,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements ExpenseViewAdapte
         protected List<Expense> doInBackground(Void... voids) {
             expenses.addAll(expenseDao.getAll());
             if (expenses.size() == 0){
+                // To be removed - for testing only
                 Expense test1 = new Expense("Test", "Testing", 99.99);
                 Expense test2 = new Expense("Test2", "Testing2", 88.99);
                 new AddNewExpense(adapter).execute(test1, test2);

@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.expensetracker.Expense;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Dao
 public interface ExpenseDao {
-    @Query("SELECT * FROM expense")
+    @Query("SELECT * FROM expense ORDER BY uid DESC")
     List<Expense> getAll();
 
     @Query("SELECT * FROM expense WHERE uid IN (:userIds)")
@@ -30,9 +31,12 @@ public interface ExpenseDao {
     @Query("SELECT COUNT(*) FROM expense")
     int findDatabaseSize();
 
+    @Update
+    void updateExpenses(Expense... expenses);
+
     @Insert
     void insert(Expense expense);
 
     @Delete
-    void delete(Expense expense);
+    void deleteExpenses(Expense... expenses);
 }

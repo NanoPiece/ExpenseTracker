@@ -28,6 +28,8 @@ public final class ExpenseDao_Impl implements ExpenseDao {
 
   private final EntityDeletionOrUpdateAdapter<Expense> __deletionAdapterOfExpense;
 
+  private final EntityDeletionOrUpdateAdapter<Expense> __updateAdapterOfExpense;
+
   public ExpenseDao_Impl(RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfExpense = new EntityInsertionAdapter<Expense>(__db) {
@@ -74,6 +76,40 @@ public final class ExpenseDao_Impl implements ExpenseDao {
         stmt.bindLong(1, value.getUid());
       }
     };
+    this.__updateAdapterOfExpense = new EntityDeletionOrUpdateAdapter<Expense>(__db) {
+      @Override
+      public String createQuery() {
+        return "UPDATE OR ABORT `Expense` SET `uid` = ?,`date` = ?,`description` = ?,`amount` = ?,`category` = ? WHERE `uid` = ?";
+      }
+
+      @Override
+      public void bind(SupportSQLiteStatement stmt, Expense value) {
+        stmt.bindLong(1, value.getUid());
+        final Long _tmp;
+        _tmp = Converters.dateToTimestamp(value.getDate());
+        if (_tmp == null) {
+          stmt.bindNull(2);
+        } else {
+          stmt.bindLong(2, _tmp);
+        }
+        if (value.getDescription() == null) {
+          stmt.bindNull(3);
+        } else {
+          stmt.bindString(3, value.getDescription());
+        }
+        if (value.getAmount() == null) {
+          stmt.bindNull(4);
+        } else {
+          stmt.bindDouble(4, value.getAmount());
+        }
+        if (value.getCategory() == null) {
+          stmt.bindNull(5);
+        } else {
+          stmt.bindString(5, value.getCategory());
+        }
+        stmt.bindLong(6, value.getUid());
+      }
+    };
   }
 
   @Override
@@ -89,11 +125,23 @@ public final class ExpenseDao_Impl implements ExpenseDao {
   }
 
   @Override
-  public void delete(final Expense expense) {
+  public void deleteExpenses(final Expense... expenses) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
-      __deletionAdapterOfExpense.handle(expense);
+      __deletionAdapterOfExpense.handleMultiple(expenses);
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void updateExpenses(final Expense... expenses) {
+    __db.assertNotSuspendingTransaction();
+    __db.beginTransaction();
+    try {
+      __updateAdapterOfExpense.handleMultiple(expenses);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
@@ -102,7 +150,7 @@ public final class ExpenseDao_Impl implements ExpenseDao {
 
   @Override
   public List<Expense> getAll() {
-    final String _sql = "SELECT * FROM expense";
+    final String _sql = "SELECT * FROM expense ORDER BY uid DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     __db.assertNotSuspendingTransaction();
     final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
